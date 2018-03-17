@@ -1,5 +1,7 @@
 package io.zipcoder;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -35,20 +37,26 @@ public class ItemParser {
 
         ArrayList<String> temp = findKeyValuePairsInRawItemData(rawItem);
  //       ArrayList<Item> myItem = new ArrayList<Item>();
-        for (int i = 0; i < temp.size(); i++) {
-            if (findKeyValuePairsInRawItemData(temp.get(i)).equals(null)) {
-                throw new ItemParseException();
-            } else if (findKeyValuePairsInRawItemData(temp.get(i)).size() == 4) {
-                   for (int j = 0; j < temp.size();j++){
+//        for (int i = 0; i < temp.size(); i++) {
+//            if (findKeyValuePairsInRawItemData(temp.get(i)).equals(null)) {
+//
+//                throw new ItemParseException();
+//            } else if (findKeyValuePairsInRawItemData(temp.get(i)).size() == 4) {
+//                   for (int j = 0; j < temp.size();j++){
+//
+//                   }
+//            }
+//
+//        }
 
-                   }
-            }
-
+        for (int i = 1; i < temp.size(); i+=2){
+            
         }
         return new Item(name,price,type,expiration);
     }
-        // need checks for actual values to these types
-    public String checkName(String name){
+        // need checks for actual values to these types don't really need to worry aout name type etc,
+        // need actual item fields because formatting will take care of names
+    public String checkAndReplaceName(String name){
         String regexName = "(N|n)...(E|e)";
         Pattern pattern = Pattern.compile(regexName);
         Matcher matcher = pattern.matcher(name);
@@ -75,6 +83,12 @@ public class ItemParser {
         Matcher matcher = pattern.matcher(expiration);
         return matcher.replaceAll("expiration");
 
+    }
+
+    public String findMatchAndReplaceValue(String regex, String value){
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(value);
+        return matcher.replaceAll("Placeholder");
     }
 
 
