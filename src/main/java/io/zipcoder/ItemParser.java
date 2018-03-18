@@ -9,12 +9,14 @@ import java.util.regex.Pattern;
 
 public class ItemParser {
 
-    Map<String, ArrayList<Item>> actualFoodList;
+    Map<String, ArrayList<Item>> realFoodList;
 
-    public ItemParser(){
+    public ItemParser() {
+        realFoodList = new HashMap<>();
     }
-    public ItemParser(String rawData){
 
+    public Map<String, ArrayList<Item>> getRealFoodList() {
+        return realFoodList;
     }
 
     //feed data from string split into arrayList
@@ -27,7 +29,7 @@ public class ItemParser {
 
     //split string with regex
     private ArrayList<String> splitStringWithRegexPattern(String stringPattern, String inputString) {
-        return new ArrayList<String>(Arrays.asList(inputString.split(stringPattern)));
+        return new ArrayList<>(Arrays.asList(inputString.split(stringPattern)));
     }
 
 
@@ -39,44 +41,53 @@ public class ItemParser {
 
     }
 
+    public void addNewItemToMap(Map<String, ArrayList<Item>> map, Item newItem) {
+        if (!map.keySet().contains(newItem.getName())) {
+            map.put(newItem.getName(), new ArrayList<>());
+            map.get(newItem.getName()).add(newItem);
+        } else {
+            map.get(newItem.getName()).add(newItem);
+        }
+    }
+
+    public void addItemToList(ArrayList<String> itemList) {
+        try {
+            for (int i = 0; i < itemList.size(); i++) {
+                Item newItem = (parseStringIntoItem(itemList.get(i)));
+                addNewItemToMap(realFoodList, newItem);
+            }
+        } catch (ItemParseException e) {
+            new ItemParseException();
+        }
+    }
+
+    public ArrayList<Double> getPrices(Map.Entry<String, ArrayList<Item>> itemMap) {
+        ArrayList<Double> prices = new ArrayList<>();
+        for (int i = 0; i < itemMap.getValue().size(); i++) {
+            if (!prices.contains(itemMap.getValue().get(i).getPrice())) {
+                prices.add(itemMap.getValue().get(i).getPrice());
+            }
+        }
+        return prices;
+    }
+
+    public int countNumberOfDifferentPrices(ArrayList<Item> itemList, Double price) {
+        int counter = 0;
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getPrice().equals(price)) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+
     public Item parseStringIntoItem(String rawItem) throws ItemParseException {
         String name = findName(rawItem);
         Double price = Double.valueOf(findPrice(rawItem));
         String type = findType(rawItem);
         String expiration = findExpiration(rawItem);
-//      getNameAndPrice(name, price);
         return new Item(name, price, type, expiration);
-    }
-
-
-    public ArrayList<Item> putItemsInArrayList(String rawItem){
-        ArrayList<Item> itemList = new ArrayList<Item>();
-        try {
-            for (Object item : itemList) {
-                itemList.add(parseStringIntoItem(rawItem));
-            }
-        }catch (ItemParseException e){
-            new ItemParseException();
-        }
-        return itemList;
-    }
-//    public void getNameAndPrice(String food, Double price) {
-//        if (!nameAndPrice.containsKey(food)) {
-//            nameAndPrice.put(food, new ArrayList<Double>());
-//            nameAndPrice.get(food).add(price);
-//        } else {
-//            nameAndPrice.get(food).add(price);
-//        }
-//
-//    }
-//
-//    public Integer countNumberFoodItems(String food) {
-//        ArrayList<Double> prices = nameAndPrice.get(food);
-//        return prices.size();
-//    }
-
-    public Integer countNumberOfPrices(Double Price) {
-       return null;
     }
 
 
@@ -132,9 +143,37 @@ public class ItemParser {
         } else {
             throw new ItemParseException();
         }
-
     }
+
+
+    public String printParsedJerkSON() {
+        StringBuilder print = new StringBuilder();
+        for (Map.Entry<String, ArrayList<Item>> entry : realFoodList.entrySet()) {
+            print.append("Name: ");
+            print.append(String.format("%-10s",entry.getKey()));
+            print.append("\t\tseen: " + entry.getValue().size() + " times\n");
+            print.append("================" + "\t\t" + "==================\n");
+
+
+
+            ArrayList<Double> priceList = getPrices(entry);
+
+            for (int i = 0; i < priceList.size(); i++) {
+                print.append("Price: ");
+                print.append(String.format("%-10s",priceList.get(i)));
+                print.append("\t\tseen: " + countNumberOfDifferentPrices(entry.getValue(), priceList.get(i)) + " times\n");
+                print.append("----------------" + "\t\t" + "------------------\n");
+
+            }
+            print.append("\n");
+        }
+
+        print.append("\nErrors" + "\t\t\t\t\tseen: " + ItemParseException.getCount() + " times\n");
+        return print.toString();
+    }
+
 }
+
 
 
 

@@ -2,6 +2,8 @@ package io.zipcoder;
 
 import org.apache.commons.io.IOUtils;
 
+import java.util.ArrayList;
+
 
 public class Main {
 
@@ -12,8 +14,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception{
+        ItemParser itemParser = new ItemParser();
         String output = (new Main()).readRawDataToString();
-        System.out.println(output);
-        // TODO: parse the data in output into items, and display to console.
+        ArrayList<String> temp = itemParser.parseRawDataIntoStringArray(output);
+        itemParser.addItemToList(temp);
+        System.out.println(itemParser.printParsedJerkSON());
     }
 }

@@ -1,5 +1,6 @@
 package io.zipcoder;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,5 +62,16 @@ public class ItemParserTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void addNewItemToMapTest(){
+        //Given
+        boolean expected = true;
+        ArrayList<String> testList = itemParser.parseRawDataIntoStringArray(rawMultipleItems);
+        //When
+        itemParser.addItemToList(testList);
+        boolean actual = itemParser.getRealFoodList().keySet().contains("milk");
+        //Then
+        Assert.assertEquals(expected,actual);
+    }
 
 }
