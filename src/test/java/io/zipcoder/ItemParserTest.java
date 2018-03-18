@@ -18,6 +18,8 @@ public class ItemParserTest {
     private String rawMultipleItems = "naMe:Milk;price:3.23;type:Food;expiration:1/25/2016##"
                                       +"naME:BreaD;price:1.23;type:Food;expiration:1/02/2016##"
                                       +"NAMe:BrEAD;price:1.23;type:Food;expiration:2/25/2016##";
+
+
     private ItemParser itemParser;
 
     @Before
@@ -59,6 +61,5 @@ public class ItemParserTest {
         assertEquals(expected, actual);
     }
 
-    private String rawBrokenMultipleItems = "naMe:Milk;price:3.23;type:Food;expiration:1/25/2016##"
-            +"naME:BreaD;price:1.23;type:Food;expiration:1/02/2016##";
+
 }

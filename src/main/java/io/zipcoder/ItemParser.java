@@ -1,7 +1,5 @@
 package io.zipcoder;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,7 +8,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ItemParser {
-    Map<String, ArrayList<Double>> nameAndPrice;
+
+    Map<String, ArrayList<Item>> actualFoodList;
+
+    public ItemParser(){
+    }
+    public ItemParser(String rawData){
+
+    }
 
     //feed data from string split into arrayList
     public ArrayList<String> parseRawDataIntoStringArray(String rawData) {
@@ -31,23 +36,6 @@ public class ItemParser {
         ArrayList<String> response = splitStringWithRegexPattern(stringPattern, rawItem);
         //ex {name:cake,price:2.50, type:food, expiration:1/4/2018}
         return response;
-    }
-//
-//    public ArrayList<Item> findRawItem(String rawData){
-//        ArrayList<String> temp = parseRawDataIntoStringArray(rawData);
-//
-//
-//        //String is Item like milk, ArrayList
-//        return null;
-//    }
-
-    public void getNameAndPrice(String key, Double price) {
-         if(!nameAndPrice.containsKey(key)){
-             nameAndPrice.put(key, new ArrayList<Double>());
-             nameAndPrice.get(key).add(price);
-         } else {
-             nameAndPrice.get(key).add(price);
-         }
 
     }
 
@@ -56,12 +44,41 @@ public class ItemParser {
         Double price = Double.valueOf(findPrice(rawItem));
         String type = findType(rawItem);
         String expiration = findExpiration(rawItem);
-
+//      getNameAndPrice(name, price);
         return new Item(name, price, type, expiration);
     }
 
-    // need checks for actual values to these types don't really need to worry aout name type etc,
-    // need actual item fields because formatting will take care of names
+
+    public ArrayList<Item> putItemsInArrayList(String rawItem){
+        ArrayList<Item> itemList = new ArrayList<Item>();
+        try {
+            for (Object item : itemList) {
+                itemList.add(parseStringIntoItem(rawItem));
+            }
+        }catch (ItemParseException e){
+            new ItemParseException();
+        }
+        return itemList;
+    }
+//    public void getNameAndPrice(String food, Double price) {
+//        if (!nameAndPrice.containsKey(food)) {
+//            nameAndPrice.put(food, new ArrayList<Double>());
+//            nameAndPrice.get(food).add(price);
+//        } else {
+//            nameAndPrice.get(food).add(price);
+//        }
+//
+//    }
+//
+//    public Integer countNumberFoodItems(String food) {
+//        ArrayList<Double> prices = nameAndPrice.get(food);
+//        return prices.size();
+//    }
+
+    public Integer countNumberOfPrices(Double Price) {
+       return null;
+    }
+
 
     public String fixCookie(String input) {
         String regexCookie = "(C|c).....(S|s)";
@@ -71,10 +88,10 @@ public class ItemParser {
     }
 
     public String findName(String name) throws ItemParseException {
+        String ifCookieFix = fixCookie(name);
         String regexName = "([Nn]..[Ee]:)(\\w+)";
         Pattern pattern = Pattern.compile(regexName);
         Matcher matcher = pattern.matcher(name);
-
         if (matcher.find()) {
             return matcher.group(2).toLowerCase();
         } else {
@@ -88,7 +105,7 @@ public class ItemParser {
         Matcher matcher = pattern.matcher(price);
 
         if (matcher.find()) {
-            return matcher.group(2).toLowerCase();
+            return matcher.group(2);
         } else {
             throw new ItemParseException();
         }
