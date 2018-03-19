@@ -27,18 +27,31 @@ public class ItemParser {
         return response;
     }
 
-    //split string with regex
+    //general method for splitting arraylists with regex
     private ArrayList<String> splitStringWithRegexPattern(String stringPattern, String inputString) {
         return new ArrayList<>(Arrays.asList(inputString.split(stringPattern)));
     }
 
-
+    //Splits arraylist that has chunks into the name:cake arraylist which gets used in testing
     public ArrayList<String> findKeyValuePairsInRawItemData(String rawItem) {
         String stringPattern = "[;|^|!|%|*|@]";
         ArrayList<String> response = splitStringWithRegexPattern(stringPattern, rawItem);
         //ex {name:cake,price:2.50, type:food, expiration:1/4/2018}
         return response;
 
+    }
+
+    //takes the raw data arraylist(item chunks) parses them into items and then adds the items to the map
+    public void addItemToList(ArrayList<String> itemList){
+            for (int i = 0; i < itemList.size(); i++) {
+                try{
+                Item newItem = (parseStringIntoItem(itemList.get(i)));
+                addNewItemToMap(realFoodList, newItem);
+            }catch (ItemParseException e){
+                    continue;
+                }
+
+        }
     }
 
     public void addNewItemToMap(Map<String, ArrayList<Item>> map, Item newItem) {
@@ -50,17 +63,7 @@ public class ItemParser {
         }
     }
 
-    public void addItemToList(ArrayList<String> itemList) {
-        try {
-            for (int i = 0; i < itemList.size(); i++) {
-                Item newItem = (parseStringIntoItem(itemList.get(i)));
-                addNewItemToMap(realFoodList, newItem);
-            }
-        } catch (ItemParseException e) {
-            new ItemParseException();
-        }
-    }
-
+    //gets all the prices for the items
     public ArrayList<Double> getPrices(Map.Entry<String, ArrayList<Item>> itemMap) {
         ArrayList<Double> prices = new ArrayList<>();
         for (int i = 0; i < itemMap.getValue().size(); i++) {
@@ -81,33 +84,39 @@ public class ItemParser {
         return counter;
     }
 
-
+        //Create new item
     public Item parseStringIntoItem(String rawItem) throws ItemParseException {
         String name = findName(rawItem);
         Double price = Double.valueOf(findPrice(rawItem));
         String type = findType(rawItem);
         String expiration = findExpiration(rawItem);
+
         return new Item(name, price, type, expiration);
     }
 
-
-    public String fixCookie(String input) {
-        String regexCookie = "(C|c).....(S|s)";
-        Pattern pattern = Pattern.compile(regexCookie);
+    //Cookie has a 0 in it so we fix it before parsing into the item
+    public String fixCo0kie(String input) {
+        String regexCo0kie = "[0]";
+        Pattern pattern = Pattern.compile(regexCo0kie);
         Matcher matcher = pattern.matcher(input);
-        return matcher.replaceAll("cookies");
+        return matcher.replaceAll("o");
     }
 
+    //We find the item name by searching for the name:item pair then return the group that has the item
     public String findName(String name) throws ItemParseException {
-        String ifCookieFix = fixCookie(name);
         String regexName = "([Nn]..[Ee]:)(\\w+)";
         Pattern pattern = Pattern.compile(regexName);
         Matcher matcher = pattern.matcher(name);
         if (matcher.find()) {
-            return matcher.group(2).toLowerCase();
+            if(matcher.group(2).contains("0")) {
+                return fixCo0kie(matcher.group(2).toLowerCase());
+            }else {
+                return matcher.group(2).toLowerCase();
+            }
         } else {
             throw new ItemParseException();
         }
+
     }
 
     public String findPrice(String price) throws ItemParseException {
@@ -122,6 +131,7 @@ public class ItemParser {
         }
     }
 
+
     public String findType(String type) throws ItemParseException {
         String regexType = "([Tt]..[Ee]:)(\\w+)";
         Pattern pattern = Pattern.compile(regexType);
@@ -134,6 +144,7 @@ public class ItemParser {
         }
     }
 
+
     public String findExpiration(String expiration) throws ItemParseException {
         String regexExpiration = "([E|e]........[N|n]:)(\\d\\/\\d{2}\\/\\d{4})";
         Pattern pattern = Pattern.compile(regexExpiration);
@@ -144,7 +155,6 @@ public class ItemParser {
             throw new ItemParseException();
         }
     }
-
 
     public String printParsedJerkSON() {
         StringBuilder print = new StringBuilder();
